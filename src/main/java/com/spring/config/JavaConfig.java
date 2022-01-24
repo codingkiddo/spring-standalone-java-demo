@@ -1,47 +1,53 @@
 package com.spring.config;
 
-import java.util.HashSet;
-import java.util.Set;
+import javax.sql.DataSource;
 
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.spring.beans.department.Department;
-import com.spring.beans.employee.Employee;
+import com.spring.beans.employee.EmployeeDao;
 import com.spring.beans.employee.EmployeeManager;
 
 @Configuration
+@PropertySource("classpath:database.properties")
 public class JavaConfig {
 
-	private Employee employee;
-	private EmployeeManager employeeManager;
-	private Department department;
-	
-	@Bean
-	@Scope("prototype")
-	public Employee getEmployee() {
-		employee = new Employee();
-		return employee;
-	}
+	@Autowired
+    private Environment env;
 	
 	@Bean
 	public EmployeeManager getEmployeeManager() {
-		employeeManager = new EmployeeManager();
-		return employeeManager;
+		return new EmployeeManager();
 	}
 	
 	@Bean
-	public Department getDepartment() {
-		department = new Department();
-		department.setId(12121212);
-		department.setName("Dept1");
-		Set<Employee> employees = new HashSet<Employee>();
-		Employee e1 = getEmployee();
-		Employee e2 = getEmployee();
-		employees.add(e1);
-		employees.add(e2);
-		department.setEmployees(employees);
-		return department;
+	public EmployeeDao getEmployeeDao() {
+		return new EmployeeDao();
+	}
+	
+	@Bean
+	public DataSource getDataSource() {
+		BasicDataSource ds = new BasicDataSource();
+		ds.setDriverClassName(env.getProperty("MYSQL_DB_DRIVER_CLASS"));
+		ds.setUrl(env.getProperty("MYSQL_DB_URL"));
+		ds.setUsername(env.getProperty("MYSQL_DB_USERNAME"));
+		ds.setPassword(env.getProperty("MYSQL_DB_PASSWORD"));
+		ds.setInitialSize(10); // The initial number of connections that
+        // are created when the pool is started.
+		ds.setMaxTotal(20); // The maximum number of active connections
+        // that can be allocated from this pool
+		return ds;
+	}
+	
+	@Bean
+	public JdbcTemplate getJdbcTemplate() {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate();
+		jdbcTemplate.setDataSource(getDataSource());
+		return jdbcTemplate;
 	}
 }

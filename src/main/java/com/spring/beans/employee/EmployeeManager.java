@@ -1,29 +1,60 @@
 package com.spring.beans.employee;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
 public class EmployeeManager {
-	
-	public Employee getEmployeeById(Integer employeeId) {
-		System.out.println("Method getEmployeeById() called");
-		return new Employee();
+
+	@Autowired
+	private DataSource dataSource;
+
+	public void getAllEmployee() throws SQLException {
+
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try {
+			conn = dataSource.getConnection();
+			String sql = "SELECT emp_no first_name, last_name FROM Employees where emp_no=499999";
+			stmt = conn.prepareStatement(sql);
+			rs = stmt.executeQuery();
+			while (rs.next()) {
+	            // Retrieve by column name
+	            System.out.print("ID: " + rs.getInt("emp_no"));
+	            System.out.print(", First: " + rs.getString("first_name"));
+	            System.out.println(", Last: " + rs.getString("last_name"));
+	         }
+		} catch (SQLException e) {
+			System.out.println(e);
+			throw e;
+		} finally {
+			try {
+				if (rs != null)
+					rs.close();
+			} catch (SQLException e) {
+				System.out.println(e);
+			}
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException e) {
+				System.out.println(e);
+			}
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException e) {
+				System.out.println(e);
+			}
+		}
 	}
 
-	public List<Employee> getAllEmployee() {
-		System.out.println("Method getAllEmployee() called");
-		return new ArrayList<Employee>();
-	}
-
-	public void createEmployee(Employee employee) {
-		System.out.println("Method createEmployee() called");
-	}
-
-	public void deleteEmployee(Integer employeeId) {
-		System.out.println("Method deleteEmployee() called");
-	}
-
-	public void updateEmployee(Employee employee) {
-		System.out.println("Method updateEmployee() called");
-	}
 }
