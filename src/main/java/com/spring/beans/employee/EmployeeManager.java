@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+
 @Component
 public class EmployeeManager {
 
@@ -23,7 +24,7 @@ public class EmployeeManager {
 		ResultSet rs = null;
 		try {
 			conn = dataSource.getConnection();
-			String sql = "SELECT emp_no first_name, last_name FROM Employees where emp_no=499999";
+			String sql = "SELECT emp_no, first_name, last_name FROM Employees where emp_no=499999";
 			stmt = conn.prepareStatement(sql);
 			rs = stmt.executeQuery();
 			while (rs.next()) {
